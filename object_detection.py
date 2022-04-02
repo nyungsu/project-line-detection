@@ -5,6 +5,8 @@ https://bong-sik.tistory.com/
 import cv2
 import numpy as np
 
+
+
 #Load YOLO
 net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
 classes = []
@@ -17,6 +19,8 @@ colors = np.random.uniform(0, 255, size=(len(classes), 3))
 img = cv2.imread("sample2.jpg")
 img = cv2.resize(img, None, fx=1, fy=1)
 height, width, channels = img.shape
+
+
 
 # Detecting objects
 blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
@@ -47,7 +51,6 @@ indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 font = cv2.FONT_HERSHEY_PLAIN
 for i in range(len(boxes)):
     label = str(classes[i])
-    print(label)
     if i in indexes:
         x, y, w, h = boxes[i]
         label = str(classes[class_ids[i]])

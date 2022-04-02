@@ -86,11 +86,18 @@ while True :
     lined_video = drawing_line(pre_processing_video)
     final = cv2.addWeighted(lined_video, 1., img, 1., 0. )
     
+    
     # cv2.imshow('lined_video', lined_video)
     # cv2.imshow('od', img)
     cv2.imshow('frame', frame)
     cv2.imshow('dst', final)
     
+
+
+
+
+
+
 
     if cv2.waitKey(10) == 27:
         break
