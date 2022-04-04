@@ -35,3 +35,13 @@ def making_mask(dst,src):
     masked = cv2.bitwise_and(dst, mask)
     return masked
 
+def drawing_line(src, rho, theta, threshold, min_line_len, max_line_gap):
+        lined = hough_lines(src, rho, theta, threshold, min_line_len, max_line_gap)
+        return lined
+    
+def pre_processing(src):
+    frame = cv2.resize(src,(960,720))
+    pre_frame = pre(frame)
+    edge_frame = edge(pre_frame)
+    masked = making_mask(edge_frame,frame)
+    return masked
