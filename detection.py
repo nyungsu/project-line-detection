@@ -16,11 +16,6 @@ max_line_gap = 150
 #Load YOLO
 net,classes,layer_names,output_layers,colors = od.load_YOLO()
 
-
-'''
-detecting_object
-frame, output_layers, height, width, channels
-'''
 while True :
     ret, frame = video.read()
     frame = cv2.resize(frame,(960,720))
