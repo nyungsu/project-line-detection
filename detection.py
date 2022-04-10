@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
+# import timeit
 import line_detection as ld
 import object_detection as od
+
 
 video = cv2.VideoCapture('실선 차선인식 test.mp4')
 
@@ -21,6 +23,8 @@ while True :
     frame = cv2.resize(frame,(960,720))
     if not ret:
         break
+    # if ret is True:
+    #     start_t = timeit.default_timer()
     height, width, channels = frame.shape
     # ------------------------------------------------------------
     # 객체 검출
@@ -33,9 +37,12 @@ while True :
     
     # cv2.imshow('lined_video', lined_video)
     # cv2.imshow('od', img)
+    
+    # terminate_t = timeit.default_timer()
+    # FPS = int(1./(terminate_t - start_t ))
     cv2.imshow('frame', frame)
     cv2.imshow('dst', final)
-    
+    # print(FPS) 
 
     if cv2.waitKey(10) == 27:
         break
