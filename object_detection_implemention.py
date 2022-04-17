@@ -1,64 +1,51 @@
-'''
-https://bong-sik.tistory.com/
-https://m.blog.naver.com/tommybee/222067664722 dnn 프로세스 설명
-
-'''
-
 import cv2
 import numpy as np
+# import timeit
+import line_detection as ld
+import object_detection as od
 
+
+video = cv2.VideoCapture('실선 차선인식 test.mp4')
+
+#라인 검출용 하이퍼 파라미터
+rho = 2
+theta = np.pi/180
+threshold = 90
+min_line_len = 120
+max_line_gap = 150
 
 
 #Load YOLO
-net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
-classes = []
-with open("coco.names", "r") as f:
-    classes = [line.strip() for line in f.readlines()]
-layer_names = net.getLayerNames()
-output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
-colors = np.random.uniform(0, 255, size=(len(classes), 3))
+net,classes,layer_names,output_layers,colors = od.load_YOLO()
 
-img = cv2.imread("sample2.jpg")
-img = cv2.resize(img, None, fx=1, fy=1)
-height, width, channels = img.shape
+while True :
+    ret, frame = video.read()
+    frame = cv2.resize(frame,(960,720))
+    if not ret:
+        break
+    # if ret is True:
+    #     start_t = timeit.default_timer()
+    height, width, channels = frame.shape
+    # ------------------------------------------------------------
+    # 객체 검출
+    frame = od.detecting_object(frame, output_layers, height, width, channels)
+    # ------------------------------------------------------------
+    # 객체 검출된 영상 받아서 차선 검출
+    pre_processing_video = ld.pre_processing(frame)
+    lined_video = ld.drawing_line(pre_processing_video, rho, theta, threshold, min_line_len, max_line_gap)
+    final = cv2.addWeighted(lined_video, 1., frame, 1., 0. )
+    
+    # cv2.imshow('lined_video', lined_video)
+    # cv2.imshow('od', img)
+    
+    # terminate_t = timeit.default_timer()
+    # FPS = int(1./(terminate_t - start_t ))
+    cv2.imshow('frame', frame)
+    cv2.imshow('dst', final)
+    # print(FPS) 
+
+    if cv2.waitKey(10) == 27:
+        break
 
 
-
-# Detecting objects
-blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
-net.setInput(blob)
-outs = net.forward(output_layers)
-class_ids = []
-confidences = []
-boxes = []
-
-for out in outs:
-    for detection in out:
-        scores = detection[5:]
-        class_id = np.argmax(scores)
-        confidence = scores[class_id]
-        if confidence > 0.5:
-            # Object detected
-            center_x = int(detection[0] * width)
-            center_y = int(detection[1] * height)
-            w = int(detection[2] * width)
-            h = int(detection[3] * height)
-            # Rectangle coordinates
-            x = int(center_x - w / 2)
-            y = int(center_y - h / 2)
-            boxes.append([x, y, w, h])
-            confidences.append(float(confidence))
-            class_ids.append(class_id)
-indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-font = cv2.FONT_HERSHEY_PLAIN
-for i in range(len(boxes)):
-    label = str(classes[i])
-    if i in indexes:
-        x, y, w, h = boxes[i]
-        label = str(classes[class_ids[i]])
-        color = colors[i]
-        cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
-        cv2.putText(img, label, (x, y + 30), font, 3, color, 3)
-cv2.imshow("Image", img)
-cv2.waitKey(0)
 cv2.destroyAllWindows()
