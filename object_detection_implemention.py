@@ -27,16 +27,18 @@ while True :
     #     start_t = timeit.default_timer()
     height, width, channels = frame.shape
     # ------------------------------------------------------------
+    
     # 객체 검출
     frame = od.detecting_object(frame, output_layers, height, width, channels)
+    
     # ------------------------------------------------------------
+    
     # 객체 검출된 영상 받아서 차선 검출
     pre_processing_video = ld.pre_processing(frame)
     lined_video = ld.drawing_line(pre_processing_video, rho, theta, threshold, min_line_len, max_line_gap)
     final = cv2.addWeighted(lined_video, 1., frame, 1., 0. )
     
-    # cv2.imshow('lined_video', lined_video)
-    # cv2.imshow('od', img)
+    #--------------------------------------------------------------
     
     # terminate_t = timeit.default_timer()
     # FPS = int(1./(terminate_t - start_t ))
